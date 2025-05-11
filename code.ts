@@ -67,7 +67,13 @@ figma.ui.onmessage = async (msg: any): Promise<void> => {
       }
 
       const data = await response.json();
-      const generatedCode = data.choices[0].message.content;
+      figma.ui.postMessage({
+        type: "assistantResponse",
+        text: JSON.stringify(data),
+      });
+      const generatedCode = data.candidates[0].content.parts[0].text
+        .replace(/```typescript|```/g, "")
+        .trim();
 
       figma.ui.postMessage({ type: "assistantResponse", text: generatedCode });
 
@@ -76,15 +82,18 @@ figma.ui.onmessage = async (msg: any): Promise<void> => {
           figma.loadFontAsync({ family: "Roboto", style: "Regular" }),
           figma.loadFontAsync({ family: "Roboto", style: "Medium" }),
           figma.loadFontAsync({ family: "Roboto", style: "Bold" }),
+          figma.loadFontAsync({ family: "Inter", style: "Regular" }),
+          figma.loadFontAsync({ family: "Inter", style: "Medium" }),
+          figma.loadFontAsync({ family: "Inter", style: "Bold" }),
         ]);
         const func = new Function("figma", generatedCode);
-        func(figma);
+        const result = func(figma);
         figma.notify("デザインを生成しました。");
       } catch (e: any) {
         console.error("Generated code execution error:", e);
         figma.ui.postMessage({
           type: "error",
-          message: `生成されたコードの実行エラー: ${e.message}`,
+          message: `生成されたコードの実行エラー: ${e}`,
         });
         figma.notify(`コード実行エラー: ${e.message}`, { error: true });
       }
