@@ -5,7 +5,7 @@ figma.showUI(__html__, { width: 400, height: 500 });
 figma.ui.onmessage = async (msg: any): Promise<void> => {
   if (msg.type === "userPrompt") {
     const userPrompt = msg.text;
-    const apiKey = await figma.clientStorage.getAsync("openrouter_key");
+    const apiKey = await figma.clientStorage.getAsync("gemini_api_key");
 
     if (!apiKey) {
       figma.ui.postMessage({
@@ -17,35 +17,38 @@ figma.ui.onmessage = async (msg: any): Promise<void> => {
 
     try {
       const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+          apiKey,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
-            model: "google/gemini-flash-1.5",
-            messages: [
+            contents: [
               {
-                role: "system",
-                content: `You are an expert Figma plugin assistant.
-The user will describe a UI component, and you will reply with TypeScript code
-that uses the Figma Plugin API to create the described UI element on the canvas.
-Provide code only, no explanations.
-The code should be a single block of TypeScript code.
-Do not use await figma.loadFontAsync if you are creating text nodes, it's already loaded.
-Available fonts are: "Roboto Regular", "Roboto Medium", "Roboto Bold".
-If you need to create a text node, use figma.createText() and set characters and fontName directly.
-For example:
-const textNode = figma.createText();
-textNode.characters = "Hello";
-textNode.fontName = { family: "Roboto", style: "Regular" };
-textNode.fontSize = 16;
-figma.currentPage.appendChild(textNode);
-`,
+                role: "user",
+                parts: [
+                  {
+                    text: `You are an expert Figma plugin assistant.
+      The user will describe a UI component, and you will reply with TypeScript code
+      that uses the Figma Plugin API to create the described UI element on the canvas.
+      Provide code only, no explanations.
+      The code should be a single block of TypeScript code.
+      Do not use await figma.loadFontAsync if you are creating text nodes, it's already loaded.
+      Available fonts are: "Roboto Regular", "Roboto Medium", "Roboto Bold".
+      If you need to create a text node, use figma.createText() and set characters and fontName directly.
+      For example:
+      const textNode = figma.createText();
+      textNode.characters = "Hello";
+      textNode.fontName = { family: "Roboto", style: "Regular" };
+      textNode.fontSize = 16;
+      figma.currentPage.appendChild(textNode);
+
+      User Prompt: ${userPrompt}`,
+                  },
+                ],
               },
-              { role: "user", content: userPrompt },
             ],
           }),
         }
@@ -93,11 +96,11 @@ figma.currentPage.appendChild(textNode);
       });
     }
   } else if (msg.type === "saveApiKey") {
-    await figma.clientStorage.setAsync("openrouter_key", msg.apiKey);
+    await figma.clientStorage.setAsync("gemini_api_key", msg.apiKey);
     figma.ui.postMessage({ type: "apiKeySaved" });
     figma.notify("APIキーを保存しました。");
   } else if (msg.type === "getApiKey") {
-    const apiKey = await figma.clientStorage.getAsync("openrouter_key");
+    const apiKey = await figma.clientStorage.getAsync("gemini_api_key");
     figma.ui.postMessage({ type: "apiKey", apiKey: apiKey || "" });
   }
 };
