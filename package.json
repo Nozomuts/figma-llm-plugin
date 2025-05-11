@@ -1,0 +1,18 @@
+{
+  "name": "figma-llm-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/code.js",
+  "scripts": {
+    "build": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@8.15.3+sha1.64838798f519c18029c1e8a1310e16101fc2eda0",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.111.0",
+    "typescript": "^5.8.3"
+  }
+}
