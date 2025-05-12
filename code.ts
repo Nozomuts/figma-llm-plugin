@@ -44,7 +44,7 @@ figma.ui.onmessage = async (msg: any): Promise<void> => {
       textNode.fontName = { family: "Roboto", style: "Regular" };
       textNode.fontSize = 16;
       figma.currentPage.appendChild(textNode);
-
+      When creating vector nodes or other shapes, use strokeWeight instead of thickness to set the stroke width.
       User Prompt: ${userPrompt}`,
                   },
                 ],
