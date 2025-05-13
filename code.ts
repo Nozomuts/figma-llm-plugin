@@ -1,5 +1,3 @@
-/// <reference types="@figma/plugin-typings" />
-
 figma.showUI(__html__, { width: 400, height: 500 });
 
 figma.ui.onmessage = async (msg: any): Promise<void> => {
